@@ -1,0 +1,58 @@
+git clone https://github.com/preservim/nerdtree.git ~/.vim/pack/vendor/start/nerdtree
+vim -u NONE -c "helptags ~/.vim/pack/vendor/start/nerdtree/doc" -c q
+git clone https://github.com/preservim/nerdcommenter.git ~/.vim/pack/vendor/start/nerdcommenter
+
+
+
+.vimrc
+filetype plugin on
+
+nnoremap <leader>n :NERDTreeFocus<CR>
+"nnoremap <C-n> :NERDTree<CR>
+nnoremap <C-n> :NERDTreeToggle<CR>
+nnoremap <C-f> :NERDTreeFind<CR>
+" Start NERDTree and leave the cursor in it.
+autocmd VimEnter * NERDTree
+" Exit Vim if NERDTree is the only window left.
+autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() |
+     \ quit | endif
+"
+set nu
+
+"autocmd FileType python setlocal commentstring=#\ %s
+filetype plugin on
+" Create default mappings
+let g:NERDCreateDefaultMappings = 1
+
+" Add spaces after comment delimiters by default
+let g:NERDSpaceDelims = 1
+
+" Use compact syntax for prettified multi-line comments
+let g:NERDCompactSexyComs = 1
+
+" Align line-wise comment delimiters flush left instead of following code indentation
+let g:NERDDefaultAlign = 'left'
+
+" Set a language to use its alternate delimiters by default
+let g:NERDAltDelims_java = 1
+
+" Add your own custom formats or override the defaults
+let g:NERDCustomDelimiters = { 'c': { 'left': '/**','right': '*/' } }
+
+" Allow commenting and inverting empty lines (useful when commenting a region)
+let g:NERDCommentEmptyLines = 1
+
+" Enable trimming of trailing whitespace when uncommenting
+let g:NERDTrimTrailingWhitespace = 1
+
+" Enable NERDCommenterToggle to check all selected lines is commented or not
+let g:NERDToggleCheckAllLines = 1
+
+"Now when you select lines in python and hit gq (the default mapping unless
+"you remapped it). It will filter the lines through autopep8 and writes the
+"nicely formatted version in place.
+au FileType python setlocal formatprg=autopep8\ -
+
+noremap <C-t> :tabnew<CR>
+noremap <C-j> :tabprevious<CR>
+nnoremap <C-k> :tabnext<CR>
