@@ -1,0 +1,29 @@
+docker run --name proc -it -p 8000:8000 -p 8554:8554 -p 4953:4953 -v /home/ubuntu/work/cmpf-app-proc-proc-repo/:/app/test/ -v /home/ubuntu/tmp/:/app/tmp proc-proc
+
+sudo docker exec -it proc bash
+
+
+
+Server: 
+gst-launch-1.0 -m filesrc location=h264_4k30p24M_0.mp4 ! decodebin ! x264enc ! video/x-h264, stream-format=byte-stream ! rtph264pay ! udpsink host=127.0.0.1 port=5000
+
+gst-launch-1.0 -m filesrc location=h264_hd6p600k_0.mp4 ! decodebin ! x264enc ! video/x-h264, stream-format=byte-stream ! rtph264pay ! udpsink host=127.0.0.1 port=5000
+
+Client:
+gst-launch-1.0 udpsrc port=5000 ! application/x-rtp, encoding-name=H264, payload=96 ! rtph264depay ! h264parse ! avdec_h264 ! fakesink sync=true
+
+gst-launch-1.0 rtspsrc location=rtsp://localhost:8554/test latency=100 ! queue ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! videoscale ! video/x-raw,width=640,height=480 ! Fakesink sync=true
+
+
+gst-launch-1.0 -m udpsrc port=5000 ! application/x-rtp, encoding-name=H264, payload=96 ! rtph264depay ! h264parse ! avdec_h264 ! queue ! videorate ! videoscale ! video/x-raw,width=320,height=240,framerate=5/1 ! videoconvert ! motioncells display=false gap=1 postallmotion=true ! fakesink sync=true
+
+gst-launch-1.0 -m udpsrc port=5000 ! application/x-rtp, encoding-name=H264, payload=96 ! rtph264depay ! h264parse ! avdec_h264 ! queue ! videorate ! videoscale ! video/x-raw,width=320,height=240,framerate=5/1 ! videoconvert ! motioncells display=false gap=1 postallmotion=true ! queue ! videoconvert ! video/x-raw,width=320,height=240,framerate=5/1! x264enc ! video/x-h264, stream-format=byte-stream ! rtph264pay ! udpsink host=127.0.0.1 port=6000
+
+
+gst-launch-1.0 -m udpsrc port=5000 ! application/x-rtp, encoding-name=H264, payload=96 ! tee name=t ! queue ! udpsink host=127.0.0.1 port=6000 t. ! rtph264depay ! h264parse ! avdec_h264 ! queue ! videorate ! videoscale ! video/x-raw,width=320,height=240,framerate=5/1 ! videoconvert ! motioncells display=false gap=1 postallmotion=true ! fakesink sync=true
+
+dstat -ta -C 0,1,2,3
+
+
+
+gst-launch-1.0 -m filesrc location=h264_4k30p24M_0.mp4 ! decodebin ! videorate ! videoscale ! video/x-raw,width=320,height=240,framerate=5/1 ! videoconvert ! motioncells display=false gap=0 postallmotion=true ! fakesink sync=true
